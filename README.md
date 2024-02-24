@@ -1,2 +1,2 @@
 # TIL
-Study
+✅ Today I Learned
