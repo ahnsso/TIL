@@ -577,3 +577,195 @@ console.log(gender); //female, 객체로부터 받은 값이 undefined일 때만
 <br />
 <br />
 <br />
+
+# 8. 나머지 매개변수, 전개 구문 (Rest parameters, Spread syntax)
+
+```javascript
+function showName(name) { //함수에 넘겨주는 인수의 갯수 제한 없음, 인수의 갯수를 정해놓고 함수를 만들어도 실제 호출할 때 정확히 그 갯수를 맞출 필요 없음
+  console.log(name);
+}
+
+showName('Mike'); //Mike
+showName('Mike', 'Tom'); //Mike만 찍힘(에러X)
+showName(); //undefined, 아무것도 전달하지 않아도 에러X
+```
+
+<br />
+
+## 함수의 인수를 얻는 방법 2가지
+
+1. arguments로 접근 (화살표 함수에는 없음)
+* 함수로 넘어 온 모든 인수에 접근
+* 함수 내에서 이용 가능한 지역 변수
+* length / index 가 있기 때문에 배열이라고 생각할 수 있지만, Array 형태의 객체
+* 배열의 내장 메서드 없으므로 forEach나 map 등 사용 불가
+
+```javascript
+function showName(name) {
+  console.log(arguments.length);
+  console.log(arguments[0]);
+  console.log(arguments[1]);
+}
+
+showName('Mike', 'Tom'); 
+//2
+//Mike
+//Tom
+```
+
+<br />
+
+### 2. 나머지 매개변수 사용 (요즘 추세)
+* ...배열이름
+* 정해지지 않은 갯수의 인수를 배열로 나타낼 수 있게 함
+
+```javascript
+function showName(...names) {
+  console.log(names);
+}
+
+showName(); //[]
+showName('Mike'); //['Mike']
+showName('Mike', 'Tom'); //['Mike', 'Tom']
+```
+
+<br />
+
+-전달받은 모든 수를 더해야 하고, 전달받는 숫자의 개수가 매번 다를 경우
+```javascript
+//forEach 사용
+function add(...numbers) {
+  let result = 0;
+  numbers.forEach((num => result += num));
+  console.log(result);
+}
+
+add(1, 2, 3); //6
+add(1, 2, 3, 4, 5, 6, 7, 8, 9, 10); //55
+```
+```javascript
+//reduce 사용
+function add(...numbers) {
+  let result = numbers.reduce((prev, cur) => prev + cur);
+  console.log(result);
+}
+
+add(1, 2, 3); //6
+add(1, 2, 3, 4, 5, 6, 7, 8, 9, 10); //55
+```
+
+<br />
+
+-user 객체를 만들어 주는 생성자 함수 만드는 경우 <br />
+(주의: 나머지 매개변수는 항상 마지막에 위치해야 함)
+```javascript
+function User(name, age, ...skills) { //사람마다 skill의 갯수는 다르기 때문에 나머지 매개변수 사용, 마지막에 위치
+  this.name = name;
+  this.age = age;
+  this.skills = skills;
+}
+
+const user1 = new User('Mike', 30, 'html', 'css');
+const user2 = new User('Julia', 29, 'JS', 'react');
+const user3 = new User('Tom', 18, 'English');
+
+console.log(user1); //User {name: 'Mike', age: 30, skills: Array(2)},['html', 'css'] 이런식으로 배열로 잘 들어감
+console.log(user2); //User {name: 'Julia', age: 29, skills: Array(2)}, ['JS', 'react']
+console.log(user3); //User {name: 'Tom', age: 18, skills: Array(1)}, ['English']
+```
+
+<br />
+
+### 전개 구문(Spread syntax): (1) 배열 
+
+배열에 넣고, 중간에 빼고, 병합하는 작업은 번거롭지만, 전개구문을 사용하면 간단하게 가능하다.
+```javascript
+let arr1 = [1, 2, 3];
+let arr2 = [4, 5, 6];
+
+let result = [...arr1, ...arr2]; //...arr1은 1,2,3을 ...arr2는 4,5,6을 풀어쓴 것
+
+console.log(result); //[1, 2, 3, 4, 5, 6];
+```
+```javascript
+let arr1 = [1, 2, 3];
+let arr2 = [4, 5, 6];
+
+let result = [0, ...arr1, ...arr2, 7, 8, 9]; //중간에 쓰는 것도 가능
+
+console.log(result); //[0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+```
+
+<br />
+
+### 전개 구문(Spread syntax): (2) 객체 
+
+```javascript
+let user = {name: 'Mike'};
+let mike = {...user, age: 30};
+
+console.log(mike); //{name: 'Mike', age: 30}
+```
+
+<br />
+
+
+### 전개 구문(Spread syntax): (3) 복제
+
+```javascript
+let user = {name: 'Mike', age: 30};
+let user2 = {...user};
+
+user2.name = 'Tom'; //user2의 이름을 Tom으로 바꿔도 user의 이름에는 영향을 미치지 않고 복제 가능
+
+console.log(user.name); //Mike
+console.log(user2.name); //Tom
+```
+
+<br />
+
+예제 > <br />
+
+-arr1 을 [4, 5, 6, 1, 2, 3] 으로
+```javascript
+let arr1 = [1, 2, 3];
+let arr2 = [4, 5, 6];
+
+//arr2.reverse().forEach((num) => {
+//  arr1.unshift(num);
+//});
+
+//위 식을 간단하게 아래와 같이 전개 구문으로 바꿀 수 있음
+arr1 = [...arr2, ...arr1];
+
+console.log(arr1); //4, 5, 6, 1, 2, 3];
+```
+
+<br />
+
+- user에 info를 넣고, fe와 lang은 skill로 만들어서 넣기
+```javascript
+let user = { name: 'Mike' };
+let info = { age: 30 };
+let fe = ['JS', 'React'];
+let lang = ['Korean', 'English'];
+
+//user = Object.assign({}, user, info, {
+//  skills: [],
+//});
+
+//fe.forEach(item) => {
+//  user.skills.push(item)'
+//});
+//lang.forEach(item) => {
+//  user.skills.push(item)'
+//});
+
+user = {
+  ...user,
+  ...info,
+  skills: [...fe, ...lang];
+};
+
+console.log(user); //{name: 'Mike', age: 30, skills: Array(4)}, ['JS', 'React', 'Korean', 'English']
+```
